@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Image, Text, TouchableOpacity, Linking } from 'react-native';
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import * as MailComposer from 'expo-mail-composer';
 import { Feather } from '@expo/vector-icons';
 
@@ -11,7 +11,10 @@ import logo from '../../assets/logo.png';
 export default function Detalhes() {
 
     const navigation = useNavigation();
-    const message = "Olá APAE, estou entrando em contato pois gostaria de ajudar no caso 'Cachorro atropelado' com o valor de R$ 100,00"
+    const route = useRoute();
+
+    const caso = route.params.caso;
+    const message = `Olá ${caso.nome_ong}, estou entrando em contato pois gostaria de ajudar no caso '${caso.titulo_caso}' com o valor de ${Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(caso.valor_caso)}`
 
     function navigateBack() {
         navigation.goBack();
@@ -19,14 +22,14 @@ export default function Detalhes() {
 
     function sendEmail() {
         MailComposer.composeAsync({
-            subject: 'Heroi do Caso: Cachorro atropelado',
-            recipients: ['jonatassilva9090@gmail.com'],
+            subject: `Heroi do Caso: ${caso.titulo_caso}`,
+            recipients: [caso.email_caso],
             body: message
         })
     }
 
     function sendWhatsapp() {
-        Linking.openURL(`whatsapp://send?phone=5544999077386&text=${message}`);
+        Linking.openURL(`whatsapp://send?phone=55${caso.whatsapp_ong}&text=${message}`);
     }
 
     return (
@@ -41,13 +44,20 @@ export default function Detalhes() {
 
             <View style={styles.casos}>
                 <Text style={[styles.casoTitulo, { marginTop: 0 }]}>ONG:</Text>
-                <Text style={styles.casoDescricao}>APAD</Text>
+                <Text style={styles.casoDescricao}>
+                    <Text style={{ fontWeight: "bold" }}>{caso.nome_ong}</Text> de {caso.cidade_ong}/{caso.uf_ong}
+                </Text>
 
                 <Text style={styles.casoTitulo}>CASO:</Text>
-                <Text style={styles.casoDescricao}>Aula de musica</Text>
+                <Text style={styles.casoDescricao}>{caso.titulo_caso}</Text>
 
                 <Text style={styles.casoTitulo}>VALOR:</Text>
-                <Text style={styles.casoDescricao}>R$ 120,00</Text>
+                <Text style={styles.casoDescricao}>
+                    {Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                    }).format(caso.valor_caso)}
+                </Text>
             </View>
 
             <View style={styles.contatoBox}>

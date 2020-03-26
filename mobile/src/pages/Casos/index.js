@@ -7,20 +7,41 @@ import styles from './styles';
 import logo from '../../assets/logo.png';
 
 export default function Casos() {
-    const navigation = useNavigation();
-
-    function navigateToDetail() {
-        navigation.navigate('Detalhe');
-    }
 
     const [casos, setCasos] = useState([]);
+    const [totalCasos, setTotalCasos] = useState(0);
+    const [page, setPage] = useState(1);
+    const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        async function loadCasos() {
-            const response = await api.get('casos');
-            setCasos(response.data);
+    const navigation = useNavigation();
+
+    function navigateToDetail(caso) {
+        navigation.navigate('Detalhe', { caso });
+    }
+
+    async function loadCasos() {
+
+        if (loading) {
+            return;
         }
 
+        if (totalCasos > 0 && casos.length === totalCasos) {
+            return;
+        }
+
+        setLoading(true);
+
+        const response = await api.get('casos', {
+            params: { page }
+        });
+
+        setCasos([...casos, ...response.data]);
+        setTotalCasos(response.headers['x-total-count']);
+        setPage(page + 1);
+        setLoading(false);
+    }
+
+    useEffect(() => {
         loadCasos();
     }, []);
 
@@ -29,7 +50,7 @@ export default function Casos() {
             <View style={styles.header}>
                 <Image source={logo} />
                 <Text style={styles.headerText}>Total de
-                   <Text style={styles.headerTextBold}> 0 casos</Text>.
+                   <Text style={styles.headerTextBold}> {totalCasos} casos</Text>.
                 </Text>
             </View>
 
@@ -40,8 +61,10 @@ export default function Casos() {
             <FlatList
                 style={styles.casosLista}
                 keyExtractor={caso => String(caso.id)}
-                showsVerticalScrollIndicator={false}
+                // showsVerticalScrollIndicator={false}
                 data={casos}
+                onEndReached={loadCasos}
+                onEndReachedThreshold={0.2}
                 renderItem={({ item: caso }) => (
                     <View style={styles.casos}>
                         <Text style={styles.casoTitulo}>ONG:</Text>
@@ -51,9 +74,14 @@ export default function Casos() {
                         <Text style={styles.casoDescricao}>{caso.titulo_caso}</Text>
 
                         <Text style={styles.casoTitulo}>VALOR:</Text>
-                        <Text style={styles.casoDescricao}>{caso.valor_caso}</Text>
+                        <Text style={styles.casoDescricao}>
+                            {Intl.NumberFormat('pt-BR', {
+                                style: 'currency',
+                                currency: 'BRL'
+                            }).format(caso.valor_caso)}
+                        </Text>
 
-                        <TouchableOpacity style={styles.botaoCaso} onPress={navigateToDetail}>
+                        <TouchableOpacity style={styles.botaoCaso} onPress={() => navigateToDetail(caso)}>
                             <Text style={styles.botaoTexto}>Ver mais detalhes</Text>
                             <Feather name="arrow-right" size={16} color="#E02041" />
                         </TouchableOpacity>
