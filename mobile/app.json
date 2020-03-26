@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Blank Template",
+    "name": "Be the Hero",
     "slug": "mobile",
     "privacy": "public",
     "sdkVersion": "36.0.0",
@@ -15,10 +15,10 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#E02041"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0 
     },
     "assetBundlePatterns": [
       "**/*"

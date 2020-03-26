@@ -6,8 +6,8 @@ module.exports = {
 
         const [count] = await connection('caso').count();
 
-        const casos = await connection('caso')
-            .join('ong', 'ong_id', '=', 'caso.ong_id')
+        const caso = await connection('caso')
+            .join('ong', 'ong.id', '=', 'caso.ong_id')
             .limit(5)
             .offset((page - 1) * 5)
             .select([
@@ -20,7 +20,8 @@ module.exports = {
             ]);
 
         res.header('X-Total-Count', count['count(*)']);
-        return res.json(casos);
+
+        return res.json(caso);
     },
 
     async show(req, res) {
